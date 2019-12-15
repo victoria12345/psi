@@ -1,0 +1,138 @@
+{% extends "mouse_cat/base.html" %}
+
+{% load staticfiles %}
+
+{% block content %}
+
+<div class="row pt-3">
+  <div class="col-sm">
+
+    <div class="col-sm">
+    </div>
+
+    <div class="col-sm">
+      <div id="formContent" class="pt-4">
+        <button class="opciones_lateral"><a href="{% url 'create_game' %}">Create game</a></button>
+        <button class="opciones_lateral"><a href="{% url 'select_game' 'join_game' %}">Join game</a></button>
+        <button class="opciones_lateral"><a href="{% url 'select_game' 'play_game' %}">Play game</a></button>
+        <button class="opciones_lateral"><a href="{% url 'select_game' 'replay_game' %}">Replay game</a></button>
+
+        <div class="mb-3">
+          <a class="enlace_lateral" href="{% url 'logout' %}">Logout</a>
+        </div>
+    </div>
+
+    <div class="col-sm">
+    </div>
+  </div>
+
+  </div>
+
+  <div class="col-6">
+
+<div id="content">
+    <h1>Play</h1>
+    <p>Game: <b>{{ game.id }}</b></p>
+    {% csrf_token %}
+
+    {% if game.cat_user.id == request.user.id %}
+      <p>Eres el gato</p>
+    {% else %}
+      <p>Eres ese raton mugriento y asqueroso. Lo siento.</p>
+    {% endif %}
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script>
+      $( function check_turn() {
+        var is_it_my_turn;
+        $.ajax({type: 'GET',
+                url: "/mouse_cat/get_game_status",
+                success: function(response) {
+                  console.log(response);
+                  if (response.status === 2){
+                    $("#ganador").html(response.winner + ' ha ganado');
+                    $("#ganador").removeClass('d-none');
+                  }
+                }});
+        $.ajax({type:'POST',
+                url: "/mouse_cat/is_it_my_turn/",
+                data: {'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').attr('value')},
+                success: function(response) {
+                  is_it_my_turn = response.is_it_my_turn;
+                  if (is_it_my_turn === true){
+                    $('#chess_board').load('/mouse_cat/show_game #chess_board', function () {
+
+                      console.log('Hello');
+                      var i = 0;
+                      $( "[id=draggable]" ).draggable({revert: 'invalid'});
+                      console.log('class must be draggable');
+                      for (; i < 64; i++) {
+                        $( '#cell_'+i ).droppable({
+                          // accept: '.item',
+                          hoverClass: 'hovering',
+                          drop: function( ev, ui ) {
+                            var origin = ui.draggable.parent().attr("id").substring(5, );
+                            droppableId = $(this).attr("id");
+                            var target = droppableId.substring(5, );
+                            ui.draggable.detach();
+                            ui.draggable.attr('style', '');
+                            $( this ).append( ui.draggable );
+
+                            var is_valid_aux = null;
+                            $.ajax({
+                              type:'POST',
+                              url: "/mouse_cat/move/",
+                              data: {'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').attr('value'),
+                                     'origin': origin,
+                                     'target': target},
+                              success: function(response){
+                                is_it_my_turn = false;
+                                check_turn();
+                                // $('#chess_board').load('/mouse_cat/show_game #chess_board')
+                              }
+
+                            });
+                          }
+                        });
+                      }
+                    });
+
+                  } else {
+                    $('#chess_board').load('/mouse_cat/show_game #chess_board')
+                    setTimeout(check_turn, 1000);
+                  }
+
+                  }
+                });
+              }
+              );
+    </script>
+    <div id="ganador" class="display-4 w-80 pb-3 d-none">
+    </div>
+    {% if board %}
+        <table id="chess_board">
+        {% for item in board %}
+            {% if forloop.counter0|divisibleby:8 %}<tr>{% endif %}
+            <td id="cell_{{ forloop.counter0}}"" style='min-width:50px;height:50px;border:1px solid #000000;text-align:center;'>
+              {% if item ==  0 %}
+              {% elif item == 1 %}  <img id="draggable" style='width:50px;height:50px;' src="{% static "images/Gato.png"%}" alt="Picture of Gato"/>
+              {% else %}  <img id="draggable" style='width:50px;height:50px;' src="{% static "images/Raton.png"%}" alt="Picture of Raton"/> {% endif %}
+            </td>
+            {% if forloop.counter|divisibleby:8 or forloop.last %}</tr>{% endif %}
+        {% endfor %}
+        </table>
+
+    {% endif %}
+
+    <p><a href="{% url 'landing' %}">Return to homepage</a></p>
+
+  </div>
+</div>
+
+<div class="col-sm">
+</div>
+
+</div>
+{% endblock content %}

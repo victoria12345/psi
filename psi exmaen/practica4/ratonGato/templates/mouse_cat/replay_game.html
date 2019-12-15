@@ -1,0 +1,170 @@
+{% extends "mouse_cat/base.html" %}
+
+{% block extra_head %}
+  <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <script src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+  {% load staticfiles %}
+{% endblock extra_head %}
+
+{% block content %}
+<div class="row pt-3">
+  <div class="col-sm">
+
+    <div class="col-sm">  
+    </div>
+    
+    <div class="col-sm">
+      <div id="formContent" class="pt-4">
+        <button class="opciones_lateral"><a href="{% url 'create_game' %}">Create game</a></button>
+        <button class="opciones_lateral"><a href="{% url 'select_game' 'join_game' %}">Join game</a></button>
+        <button class="opciones_lateral"><a href="{% url 'select_game' 'play_game' %}">Play game</a></button>
+        <button class="opciones_lateral"><a href="{% url 'select_game' 'replay_game' %}">Replay game</a></button>
+  
+        <div class="mb-3">
+          <a class="enlace_lateral" href="{% url 'logout' %}">Logout</a>
+        </div>
+    </div>
+
+    <div class="col-sm">  
+    </div>
+  </div>
+
+  </div>  
+
+  <div class="col-6">
+  <div id="content">
+      <h1>Play</h1>
+      <p>Game: <b>{{ game.id }}</b></p>
+          {% csrf_token %}
+          <script>
+            $( function () {
+              var intervalo;
+              var next = true
+              var previous = false
+              var reproduction_finished = false
+              // Cuando se pulsa el boton "botonPlay, se empieza a llamar a la funcion ajaxd cada 2 secs."
+              $(".botonPlay").click(function(evt) {
+                $(".botonPlay").attr("disabled", true);
+                reproduce_game();
+                intervalo = setInterval(reproduce_game, 500); // cada 2 segundos
+              });
+
+              $(".botonNext").click(function(evt) {
+                reproduce_next_move();
+              });
+
+              $(".botonPrevious").click(function(evt) {
+                reproduce_previous_move();
+              });
+
+              function reproduce_next_move() {
+
+                if (next === true){
+                  $(".botonPrevious").attr("disabled", false);
+                  $.ajax({type:'POST',
+                          url: "/mouse_cat/get_move/",
+                          data: {'shift': 1,
+                                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').attr('value')},
+                          success: function(response) {
+                            origin = response.origin;
+                            target = response.target;
+                            previous = response.previous;
+                            next = response.next;
+
+                            ficha = $('#cell_'+origin).children()[0];
+                            $('#cell_'+origin).children().remove();
+                            $('#cell_'+target).html(ficha);
+                          }
+                        });
+
+                }else{
+                  $(".botonNext").attr("disabled", true);
+                }
+              }
+
+              function reproduce_game() {
+                if (next === true && reproduction_finished === false){
+                  $(".botonPrevious").attr("disabled", false);
+                  $.ajax({type:'POST',
+                          url: "/mouse_cat/get_move/",
+                          data: {'shift': 1,
+                                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').attr('value')},
+                          success: function(response) {
+                            origin = response.origin;
+                            target = response.target;
+                            previous = response.previous;
+                            next = response.next;
+
+                            ficha = $('#cell_'+origin).children()[0];
+                            $('#cell_'+origin).children().remove();
+                            $('#cell_'+target).html(ficha);
+                          }
+                        });
+
+                }else if (reproduction_finished === false){
+                  $(".botonNext").attr("disabled", true);
+                  reproduction_finished = true;
+                  clearInterval(intervalo);
+                }
+              }
+
+              function reproduce_previous_move() {
+                if (previous === true){
+                  $(".botonNext").attr("disabled", false);
+                  $.ajax({type:'POST',
+                          url: "/mouse_cat/get_move/",
+                          data: {'shift': -1,
+                                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').attr('value')},
+                          success: function(response) {
+                            origin = response.origin;
+                            target = response.target;
+                            previous = response.previous;
+                            next = response.next;
+
+                            ficha = $('#cell_'+origin).children()[0];
+                            $('#cell_'+origin).children().remove();
+                            $('#cell_'+target).html(ficha);
+                          }
+                });
+                }else{
+                  $(".botonPrevious").attr("disabled", true);
+                }
+              }
+
+            })
+          </script>
+          <p>
+              Cats: <b>{{ game.cat_user.username }}</b>
+          </p>
+          <p>
+              Mouse: <b>{{ game.mouse_user.username }}</b>
+          </p>
+          <button class="botonNext" style="margin-left:20px;font-weight:normal" >Next</button>
+          <button class="botonPrevious" style="margin-left:20px;font-weight:normal" >Previous</button>
+          <button class="botonPlay" style="margin-left:20px;font-weight:normal" >Play</button>
+
+
+      {% if board %}
+          <table id="chess_board">
+          {% for item in board %}
+              {% if forloop.counter0|divisibleby:8 %}<tr>{% endif %}
+              <td id="cell_{{ forloop.counter0}}"" style='min-width:50px;height:50px;border:1px solid #000000;text-align:center;'>
+                  {% if item ==  0 %}
+                  {% elif item == 1 %}  <img style='width:50px;height:50px;' src="{% static "images/Gato.png"%}" alt="Picture of Gato"/>
+                  {% else %}  <img style='width:50px;height:50px;' src="{% static "images/Raton.png"%}" alt="Picture of Raton"/> {% endif %}
+              </td>
+              {% if forloop.counter|divisibleby:8 or forloop.last %}</tr>{% endif %}
+          {% endfor %}
+          </table>
+
+      {% endif %}
+
+      <p><a href="{% url 'landing' %}">Return to homepage</a></p>
+  </div>
+  </div>
+
+  <div class="col-sm">
+  </div>
+
+</div>
+{% endblock content %}
