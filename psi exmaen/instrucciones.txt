@@ -1,0 +1,54 @@
+**Crear proyecto
+
+django-admin.py startproject proyecto
+
+**crear app
+python3 manage.py startapp aplicacion
+
+1º anadir aplicacion a INSTALED_APPS
+
+**Para la base de datosw lo de database_url
+
+**Para los modelos y lo de admin
+	1º creamos los modelos
+
+		tipos de datos: CharField, URLField, IntegerField, DateField
+			atributo 'unique' = True o False
+				 'default' = un valor
+				 'null' = True o False
+
+
+	2º migrate
+	3º creamos superuser 
+		python3 manage.py createsuperuser
+	4º makemigrations y migrate de nuevo (en ese orden)
+
+	5º para que desde admin s epueda ver nuestra base de datos...
+		from aplicacion.models import "los modelos q hemos creado"
+
+
+**Para el script q poble la base de datos..
+	hacer el script tal cual xd
+
+**Vainitas de heroku
+	1º runtime.txt y requirements.txt y procfile
+	2º lo de la base de datos
+
+		cambio en static_root
+		cambio en databases
+	3º cambios en wsgi
+
+	4º lo del repositorio:
+		git init
+		git add .
+		git commit -am "inicial commit"
+
+		heroku login
+		heroku create
+		cambio en allowed hosts
+
+		git push heroku master
+
+
+Pasamos a las templates...
+	1º en settigns.py cambiar de templates dirs para añadir templates_dir
