@@ -8,6 +8,8 @@ python3 manage.py startapp aplicacion
 1º anadir aplicacion a INSTALED_APPS
 
 **Para la base de datosw lo de database_url
+	tb	dropdb -U alumnodb -h localhost examen
+		createdb -U alumnodb -h localhost examen
 
 **Para los modelos y lo de admin
 	1º creamos los modelos
