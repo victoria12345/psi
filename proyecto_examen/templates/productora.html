@@ -1,0 +1,29 @@
+<html>
+    
+
+<head></head>
+
+<body>
+        {% if error %}
+
+        {{error}}
+        
+        {% endif %}
+        
+        Peliculas en las que la productora {{productora.nombreP}} con identificador
+        {{productora.id}} ha participado.
+
+        
+        
+        <table>
+            {% for pelicula in peliculas%}
+            <tr>
+                <th>{{pelicula.id}}</th>
+                <td>{{pelicula.nombreP}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    
+</body>
+
+</html>

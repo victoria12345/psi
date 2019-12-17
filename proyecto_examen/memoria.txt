@@ -1,0 +1,79 @@
+--APARTADO1
+
+Para este apartado he realizado los comandos :
+    **Crear proyecto
+
+    django-admin.py startproject proyecto
+
+    **crear app
+    python3 manage.py startapp aplicacion
+
+    También he modificado la variable Installed_apps, para añadir la nuestra.
+
+
+--APARTADO2
+
+    En este apartado he modificado el fichero models.py situado en e directorio
+    'aplicacion'.
+    He añadido un modelo de película, productora y de produce.
+        Para utilizar pid como clave primaria he puesto el atributo 
+        unique=True
+    Los atributos de las distintas clases son los especificados en el enunciado.
+
+--APARTADO3
+
+    En este apartado he creado un fichero llamado poblar.py que crea (en caso de
+    que no existan ya) peliculas, productoras y produces con los id's especificados.
+    
+    He puesto que si existen no las borre, esto ha sido decisión propia, pues no se 
+    especifica, en el enunciado, que se debe hacer en esta situación.
+
+--APARTADO4
+    Para este apartado primero he iniciado sesión en heroku y "creado" una aplicación.
+
+    He creado también el repositorio (.git) en la carpeta del proyecto.
+
+    Posteriormente he modificado el fichero wsgi.py.
+    En settings he tenido que añadir en allowed_hosts nuestra direccion de heroku.
+
+    He añadido a la carpeta los ficheros necesarios para el desplegue en heroku
+    (runtime, Procfil y requirements.txt)
+
+    Una vez que he hecho el git add y git commit hacemos git push heroku master.
+
+    Una vez que nuestra aplicación se ha desplegado en heroku, abrimos la terminal de
+    heroku para hacer las migraciones necesarias, crear un superusuario(alumnodb) y 
+    ejecutar el script que poble la base de datos.
+
+    La dirección heroku de mi aplicación es: https://boiling-tor-11335.herokuapp.com/
+
+--APARTADO5
+
+    Primero he copiado el html.
+    Despueés he configurado los ficheros urls.py tanto de proyecto como de aplicación
+    para que con $PROJECT_URL/aplicacion/productora/ aparezca lo pedido.
+
+    Posteriormente he creado una view 'productora' en views.py (situado en el
+    directorio de aplicacion). Productora primero busca en la base de datos la 
+    productora con el id 1001. Posteriormente la lista de producciones en las que
+    ha participado esa productora.
+    Finalmente crea ua lista en la que mete cada una de las peliculas e la que ha 
+    participado la productora y esto se para al template a través de la variable de
+    contexto 'context_dict'
+
+    en caso de que no haya peliculas el error también se pasa a través de esa variable.
+
+-- APARTADO6
+    Para este apartado creamos el fichero test.py(directorio aplicacion)
+    Ahi nosotros he metido nuestro test. Primero vamos realizando los pasos 
+    que se indican en el enunciado, borrar las productoras, peliculas..., crear nuevas...
+
+    Una vez que he realizado todo esto accedemos a la vista $URLPROJECT/aplicacion/productora
+    y comprobamos que en la template se muestre el mensaje de error.
+
+    Tal y como he creado los nuevos datos la productora 1001 no participa en niguna pelicula.
+    Por eso buscamos el mensaje de error.
+
+    **Comando para ejecutar el test: python3 manage.py test aplicacion.test --keepdb
+
+    También he comprobado que en Heroku se pase el test.
